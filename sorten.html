@@ -1,251 +1,136 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>🌶 Chili-Sorten Tabelle</title>
-  <style>
-    :root{ --bg:#111; --fg:#eee; --muted:#bbb; --line:#444; --card:#1b1b1b; --accent:#7ee787; }
-    body{font-family: Arial, system-ui, sans-serif; background:var(--bg); color:var(--fg); margin:40px;}
-    a{color:var(--accent); text-decoration:none;}
-    a:hover{text-decoration:underline;}
-    .top{margin-bottom:18px;}
-    .card{background:var(--card); padding:18px; border-radius:12px; margin-bottom:18px;}
-    table{width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden;}
-    th, td{border-bottom:1px solid var(--line); padding:10px; vertical-align:top; text-align:left;}
-    th{background:#222;}
-    tr:last-child td{border-bottom:none;}
-    .small{color:var(--muted); font-size:.95rem;}
-    .wrap{white-space:normal;}
-    .w-sorte{width:240px;}
-    .w-link{width:320px;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🌶 Chili-Sorten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0d0f0a; --surface:#13160e; --surface2:#1a1f12; --border:#2a3020; --text:#dde5c8; --muted:#7a8a60; --accent:#c8e060; --accent2:#e05a20; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(13,15,10,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:56px;display:flex;align-items:center;gap:16px;}
+  .back-link{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--accent);text-decoration:none;}
+  .back-link:hover{opacity:0.7;}
+  #sortCount{margin-left:auto;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);}
+  .container{max-width:1100px;margin:0 auto;padding:60px 40px;}
+  .label{font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:block;}
+  h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,5vw,4rem);line-height:1.05;font-weight:700;margin-bottom:40px;}
+  h1 em{color:var(--accent2);font-style:italic;}
+  .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
+  .filter-btn{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;padding:6px 16px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+  .filter-btn:hover,.filter-btn.active{border-color:rgba(200,224,96,.4);color:var(--accent);background:rgba(200,224,96,.07);}
+  .sort-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+  .sort-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s,transform .2s;animation:fadeIn .4s ease both;}
+  .sort-card:hover{border-color:rgba(200,224,96,.3);transform:translateY(-2px);}
+  .sort-card-header{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .sort-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;line-height:1.2;}
+  .sort-species{font-family:'DM Mono',monospace;font-size:0.63rem;color:var(--muted);margin-top:5px;font-style:italic;}
+  .heat-scale{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+  .heat-dots{display:flex;gap:3px;}
+  .heat-dot{width:7px;height:7px;border-radius:50%;background:var(--border);}
+  .lit-1{background:#c8e060;} .lit-2{background:#f0b840;} .lit-3{background:#e07020;} .lit-4{background:#e03020;} .lit-5{background:#c01010;}
+  .heat-label{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+  .sort-card-body{padding:16px 22px 18px;flex:1;}
+  .sort-desc{font-size:.85rem;color:rgba(221,229,200,.8);line-height:1.7;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+  .sort-desc.expanded{display:block;-webkit-line-clamp:unset;}
+  .expand-btn{background:none;border:none;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--accent);cursor:pointer;margin-top:8px;padding:0;display:block;}
+  .sort-card-footer{padding:12px 22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .sort-link{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--accent);text-decoration:none;}
+  .sort-link:hover{opacity:.7;}
+  .origin-tag{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);}
+  .no-results{display:none;text-align:center;padding:60px;color:var(--muted);font-family:'DM Mono',monospace;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:600px){.container{padding:40px 20px}.topbar{padding:0 20px}.sort-grid{grid-template-columns:1fr}}
+</style>
 </head>
-
 <body>
-  <div class="top">
-    <a href="index.html">⬅ Zurück</a>
+
+<div class="topbar">
+  <a href="index.html" class="back-link">← Zurück</a>
+  <div id="sortCount"></div>
+</div>
+
+<div class="container">
+  <span class="label">Saison 2026</span>
+  <h1>Chili<br><em>Sorten</em></h1>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">Alle</button>
+    <button class="filter-btn" data-filter="chinense">C. chinense</button>
+    <button class="filter-btn" data-filter="annuum">C. annuum</button>
+    <button class="filter-btn" data-filter="baccatum">C. baccatum</button>
+    <button class="filter-btn" data-filter="mild">Mild (≤3)</button>
+    <button class="filter-btn" data-filter="hot">Scharf (≥7)</button>
   </div>
 
-  <div class="card">
-    <h1>🌱 Chili-Sorten Tabelle</h1>
-    <p class="small">Alphabetisch sortiert • Spalte „Infos“ enthält deine Texte • Links sind klickbar.</p>
-  </div>
+  <div class="sort-grid" id="sortGrid"></div>
+  <div class="no-results" id="noResults">Keine Sorten gefunden.</div>
+</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th class="w-sorte">Sorte</th>
-        <th>Infos</th>
-        <th class="w-link">Link / Referenz</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Aji Margaritena</td>
-        <td class="wrap">
-          Capsicum chinense<br>
-          Tolles Aroma schon beim Aufschneiden, hat was von Ananas und viel, viel süßer Frucht. Aji Margariteno mit seinen bauchigen, gebuchteten Früchten hat nur eine ganz leichte Schärfe und schmeckt delikat. Ein Chili für den Frischgenuss: Fladenbrot, gebratenes Hackfleisch, Gurken, Tomaten, Salat und reichlich von diesem Chili (inspiriert vom bekanntesten Gericht aus der türkischen Küche), schmeckt mal ganz anders.<br>
-          Die Sorte ist in den USA als Zufallssämling gefunden worden
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Aji-Margariteno.html?language=de" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
+<script>
+var sorten=[
+  {name:"Aji Margaritena",species:"Capsicum chinense",heat:1,origin:"USA",desc:"Tolles Aroma schon beim Aufschneiden — Ananas und viel süße Frucht. Bauchige, gebuchtete Früchte mit nur leichter Schärfe. Ein Chili für den Frischgenuss. Als Zufallssämling in den USA gefunden.",link:"https://deaflora.de/Shop/Chili/Chili-Aji-Margariteno.html?language=de"},
+  {name:"Biquinho Amarelo",species:"Capsicum chinense",heat:1,origin:"Brasilien",desc:"Niedliche Tropfenform — ein Überangebot an Früchten! Fantastisch fruchtig, süß mit ganz leichter Schärfe. Am besten frisch essen. Bedeutet 'kleiner gelber Schnabel'. Reift von hellgrün zu sattgelb.",link:"https://deaflora.de/Shop/Chili/Gemuesechili-Biquinho-Amarelo-8668.html?language=de"},
+  {name:"Dulce Estrella",species:"Capsicum baccatum",heat:2,origin:"Eigenauslese",desc:"Köstliche Eigenauslese. Glockenförmige Früchte mit kussmund-förmiger Spitze in sanftem Hellgelb. Sehr fruchtig und saftig. Pflanzen bis 1,20 m hoch, gedeihen auch im Halbschatten.",link:"https://deaflora.de/Shop/Chili/Chili-Dulce-Estrella.html"},
+  {name:"Dulce Sol",species:"Capsicum baccatum",heat:1,origin:"Eigenauslese",desc:"Dulce bedeutet süß — und süß schmeckt er wirklich. Geringe Schärfe, schmackhaftes Aroma. Strahlendes goldgelbes Äußeres. Eine überaus leckere Raritätensorte.",link:"https://deaflora.de/Shop/Chili/Chili-Dulce-Sol.html"},
+  {name:"Elephants Trunk Red",species:"Capsicum annuum",heat:5,origin:"Indien",desc:"'Elefantenrüssel' aus Indien. Pflanzen bis 1,20 m, Früchte 15–25 cm lang. Sehr aromatisch, besonders gut mit Frischkäse füllen oder einlegen. Eignet sich auch zum Kochen und Grillen.",link:"https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-4-6/1579/elephants-trunk-red-chili-samen"},
+  {name:"Habanada",species:"Capsicum chinense",heat:0,origin:"USA",desc:"Null Schärfe bei vollem Habanero-Aroma! Wurde zur begehrtesten Sorte. Orange-apricot Früchte, schön groß. Kompakte Pflanzen mit 40 cm. Gezüchtet von Michael Mazourek.",link:"https://deaflora.de/Shop/Chili/Chili-Habanada.html"},
+  {name:"Habanero El Remo",species:"Capsicum chinense",heat:9,origin:"Karibik",desc:"Typisches intensives Habanero-Fruchtaroma kombiniert mit kräftiger Schärfe. Klassische Habanero-Eigenschaften mit fruchtigen Noten.",link:"#"},
+  {name:"Mattapeno",species:"Capsicum annuum",heat:5,origin:"USA",desc:"Außergewöhnliche Jalapeño-Variante mit weiß-grün gestreiften Früchten und bunten Blättern. Keine Kreuzung, sondern eine stabile Mutation. Früchte fest, dickwandig und lecker.",link:"https://deaflora.de/Shop/Chili/Chili-Mattapeno--panaschiert-.html"},
+  {name:"Nadapeno",species:"Capsicum annuum",heat:0,origin:"USA",desc:"Klassischer Jalapeño — aber ohne Schärfe. Sehr würziger Geschmack, auch für Kinder geeignet. Dickwandige, saftige Früchte mit typischen Korkrissen — Qualitätszeichen!",link:"https://deaflora.de/Shop/Chili/Chili-Nadapeno.html"},
+  {name:"Naga Dorset",species:"Capsicum chinense",heat:10,origin:"Bangladesch",desc:"Eine der schärfsten Chili-Sorten der Welt. Britische Zuchtlinie der Naga Morich aus Bangladesch. Extrem scharf mit fruchtigen Noten.",link:"https://de.wikipedia.org/wiki/Dorset_Naga"},
+  {name:"Pink Habanero",species:"Capsicum chinense",heat:2,origin:"Unbekannt",desc:"Lachsorangefarbener Habanero — aber ohne beißende Schärfe. Grandios: sonnig-fruchtig-warm mit kleiner Spur Schärfe. Pflanzen tragen reichlich. Lieblingschili 2019.",link:"https://deaflora.de/Shop/Chili/Chili-Pink-Habanero.html"},
+  {name:"Scotch Bonnet MOA Yellow",species:"Capsicum chinense",heat:9,origin:"Karibik",desc:"Gelb-orange Variante der Scotch Bonnet. Eine der schärfsten Chilis der Welt. Außergewöhnlich tropisch-fruchtiges Aroma, teils an Aprikosen erinnernd. Essentiell in der karibischen Küche.",link:"https://www.chili-shop24.de/chili-zucht/chili-samen/grossmengen-bio-chilisamen/19680/bio-scotch-bonnet-moa-yellow-chili-samen-1000-stk."},
+  {name:"Shabu Shabu",species:"Capsicum chinense",heat:9,origin:"China",desc:"Wächst wild in China, Region Tengchong. Leuchtend rot, sehr scharf, ähnlich einer Naga Jolokia. Traditionell mit Stäbchen in heiße Suppe getaucht.",link:"https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-9-10/4556/shabu-shabu-chili-samen"},
+  {name:"Somborcka",species:"Capsicum annuum",heat:3,origin:"Kosovo",desc:"Dickfleischige Landsorte aus dem Kosovo. Früchte reifen von hellgelb auf rot. In der Balkan-Heimat gerne gefüllt und eingelegt. Manchmal richtig peppig — Überraschungseffekt!",link:"https://www.pepperworldhotshop.com/de/produkte/somborcka-chilisamen/"},
+  {name:"Sweet Bonnet",species:"Capsicum chinense",heat:1,origin:"Karibik",desc:"Superlecker, ganz leicht scharf, unglaubliches Aroma! Scotch-Bonnet-Verwandter ohne Waffenscheinpflicht. Früchte wie kleine Blümchen. Hoher Ertrag, frühe Reife.",link:"https://deaflora.de/Shop/Chili/neu-chili-sweet-bonnet-schaerfe-1-samen.html"},
+  {name:"Trinidad Scorpion Moruga Chocolate",species:"Capsicum chinense",heat:10,origin:"Karibik",desc:"Schokobraune Variante der Trinidad Scorpion Moruga. Ebenso scharf, am Stachel erkennbar. Sehr aromatisch, fruchtig, etwas rauchiger als andere Sorten.",link:"https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-9-10/4532/trinidad-scorpion-moruga-chocolate-chili-samen"},
+  {name:"Uba Tuba Gambaei",species:"Capsicum baccatum",heat:7,origin:"Brasilien",desc:"Aus Brasilien. Große verzweigte Pflanzen bis 2 Meter. Früchte in kurioser Form, ähnlich Bishops Crown. Saftig, dickfleischig, fruchtig. Frisch, gekocht oder getrocknet.",link:"https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-7-8/1467/uba-tuba-gambuci-chili-samen"},
+  {name:"Vicentes Sweet Habanero",species:"Capsicum chinense",heat:0,origin:"Unbekannt",desc:"Keinerlei Schärfe, volles Habaneroaroma! Mehr Zitrus, Pfirsich, tropische Früchte. Herzförmige Früchte mit vielen Rillen, hellrot, ca. 6 cm. Geschmacksknaller 2014.",link:"https://deaflora.de/Shop/Chili/Chili-Vicentes-Sweet-Habanero.html"}
+];
 
-      <tr>
-        <td>Biquinho Amarelo</td>
-        <td class="wrap">
-          Capsicum chinense<br>
-          Niedliche, kleine Chilis in Tropfenform.<br>
-          Massen von Früchten an den Pflanzen ist stark untertrieben, denn sie wartet mit einem Überangebot auf die Ernte!<br>
-          Die Früchte schmecken fantastisch, toll fruchtig, süß mit einer ganz leichten, fast schon nicht mehr wahrnehmbaren Schärfe.<br>
-          Die Früchte am besten frisch essen.<br>
-          Beheimatet ist die Sorte in Brasilien, der Name bedeutet „kleiner gelber Schnabel“.<br>
-          Die Pflanze wächst bis zu 70cm hoch. An dieser bilden sich etwa 2,5cm lange Früchte. Ab Juli erreichen sie ihre Endgröße, brauchen dann aber noch Zeit zum Umfärben. Sie reifen von hellgrün zu sattgelb.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Gemuesechili-Biquinho-Amarelo-8668.html?language=de" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
+function heatDots(h){var s='';for(var i=1;i<=10;i++){var c='heat-dot';if(i<=h){if(h<=2)c+=' lit-1';else if(h<=4)c+=' lit-2';else if(h<=6)c+=' lit-3';else if(h<=8)c+=' lit-4';else c+=' lit-5';}s+='<div class="'+c+'"></div>';}return s;}
+function heatLabel(h){if(h===0)return'Keine Schärfe';if(h<=2)return'Mild';if(h<=4)return'Leicht';if(h<=6)return'Mittel';if(h<=8)return'Scharf';return'Extrem';}
 
-      <tr>
-        <td>Dulce Estrella</td>
-        <td class="wrap">
-          Capsicum baccatum<br>
-          Köstliche Chilisorte, die bei uns ausgelesen wurde.<br>
-          Die Früchte sind glockenförmig, an der Spitze wie eine Kussmund geformt. Die Farbe ist ein sanftes hellgelb.<br>
-          Mit einer Schärfe von 2 auch nur wenig scharf, entfernt man Samen und Scheidewände, ist dieser Chili sehr gut pur essbar.<br>
-          Das Aroma ist toll. Sehr fruchtig und saftig.<br>
-          Die Pflanzen wurden bei uns recht hoch bis zu einer Wuchshöhe von 1,20m. Sie wuchsen auch im Halbschatten sehr gut.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Dulce-Estrella.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
+function renderCards(filter){
+  var grid=document.getElementById('sortGrid');
+  var noRes=document.getElementById('noResults');
+  var countEl=document.getElementById('sortCount');
+  var filtered=sorten.filter(function(s){
+    if(filter==='all')return true;
+    if(filter==='chinense')return s.species.indexOf('chinense')>-1;
+    if(filter==='annuum')return s.species.indexOf('annuum')>-1;
+    if(filter==='baccatum')return s.species.indexOf('baccatum')>-1;
+    if(filter==='mild')return s.heat<=3;
+    if(filter==='hot')return s.heat>=7;
+    return true;
+  });
+  countEl.textContent=filtered.length+' Sorten';
+  if(filtered.length===0){grid.innerHTML='';noRes.style.display='block';return;}
+  noRes.style.display='none';
+  grid.innerHTML=filtered.map(function(s,i){
+    return '<div class="sort-card" style="animation-delay:'+(i*0.04)+'s">'
+      +'<div class="sort-card-header"><div><div class="sort-name">'+s.name+'</div><div class="sort-species">'+s.species+'</div></div>'
+      +'<div class="heat-scale"><div class="heat-dots">'+heatDots(s.heat)+'</div><div class="heat-label">'+heatLabel(s.heat)+'</div></div></div>'
+      +'<div class="sort-card-body"><div class="sort-desc" id="d'+i+'">'+s.desc+'</div>'
+      +'<button class="expand-btn" onclick="ex('+i+')">Mehr lesen</button></div>'
+      +'<div class="sort-card-footer"><a href="'+s.link+'" class="sort-link" target="_blank" rel="noopener">Quelle →</a>'
+      +'<span class="origin-tag">'+s.origin+'</span></div></div>';
+  }).join('');
+}
 
-      <tr>
-        <td>Dulce Sol</td>
-        <td class="wrap">
-          Capsicum baccatum<br>
-          Dulce bedeutet süß und süß schmeckt dieser Chili wirklich. Dazu eine ganz geringe Schärfe und ein schmackhaftes Aroma.<br>
-          Die Farbe der Früchte ist ein strahlendes goldgelb, die reich behangenen Pflanzen sind richtige Schönheiten.<br>
-          Erste, reife Früchte kann man ab August ernten, Haupternte ist September.<br>
-          Dulce Sol ist eine überaus leckere Raritätensorte, die es nur noch bei uns gibt.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Dulce-Sol.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
+function ex(i){var el=document.getElementById('d'+i);var btn=el.nextElementSibling;el.classList.toggle('expanded');btn.textContent=el.classList.contains('expanded')?'Weniger':'Mehr lesen';}
 
-      <tr>
-        <td>Elephants Trunk Red</td>
-        <td class="wrap">
-          Die Elephants Trunk Red Chili ist eine Sorte aus Indien, deren Name "Elefantenrüssel" bedeutet, und sie sehen wirklich durch ihre unebene Oberfläche aus wie kleine Rüssel.
-          Die Pflanzen können recht große Ausmaße annehmen (bis 1,20 m) und die Chilis werden ca. 15 cm lang, können aber auch bis 20 oder 25 cm erreichen.
-          Sie sind sehr aromatisch und lassen sich besonders gut mit Frischkäse füllen oder einlegen. Außerdem eigenen sie sich zum frischen Verzehr, zum Kochen und Grillen
-        </td>
-        <td><a href="https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-4-6/1579/elephants-trunk-red-chili-samen" target="_blank" rel="noopener">chili-shop24.de</a></td>
-      </tr>
+document.querySelectorAll('.filter-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');renderCards(btn.dataset.filter);
+  });
+});
 
-      <tr>
-        <td>Habanada</td>
-        <td class="wrap">
-          Capsicum chinense<br>
-          Habanada hat es innerhalb kürzester Zeit geschafft, zur begehrtesten Sorte aufzusteigen. Null Schärfe bei vollem Aroma!<br>
-          Früchte sind orange, in Richtung apricot tendierend, sehen wie eine Spitzpaprika nach einem Auffahrunfall aus. Schön groß, da ist ordentlich was dran.<br>
-          Die Pflanzen selbst sind kompakt mit 40cm Höhe. Die Blätter sind habanerotypisch blasig. Gezüchtet von Michael Mazourek.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Habanada.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Habanero El Remo</td>
-        <td class="wrap">
-          Capsicum chinense<br>
-          Wir lieben ihn! Ein Habanero mit nur ganz wenig Schärfe, aber dem vollen Aroma. Die Schärfe liegt auf einer Skala von 1 bis 10 bei 2.<br>
-          Der Geschmack ist sehr süß, voller tropischer Aromen, herausragend! Es ist einfach ein köstlicher Chili!<br>
-          Ohne Kerne noch milder, dann eine leckerer Belag für das Abendbrot. In Scheiben geschnitten sehr hübsch, wie kleine Blüten.<br>
-          Die Früchte reifen rot ab, sie sind stark gefurcht und glänzen stark. Mit einer Größe von 5x5cm auch kein kleiner Habanero. Er reift auch noch früh!<br>
-          Diese fantastische Sorte wurde in dem kleinen Ort El Remo/ Spanien entdeckt.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Habanero-El-Remo.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Jalapeno</td>
-        <td class="wrap">
-          Die nach der Stadt Jalapa (Veracruz) in Mexiko benannte Chili zählt zu den bekanntesten und beliebtesten Chilis in Mexiko und den Vereinigten Staaten.<br><br>
-          Die Jalapeño Early Chili ist eine früh abreifende Jalapeño mit saftigen, fleischigen Fruchtwänden und bis zu 8 cm langen Früchten. Ihr Geschmack ist aromatisch und durch die milde Schärfe auch zum rohen Verzehr geeignet. Jalapeños gehören zu den wenigen Chilis, die auch im grünen, unreifen Zustand sehr gut schmecken. Sind sie rot ausgereift, bekommt der Geschmack eine angenehme Süße. Durch das frühe Reifen, eignet sich diese Sorte auch zum Anbau in Regionen mit kurzer Vegetationsperiode.<br><br>
-          Die Früchte haben manchmal eine rissige, verkorkte Oberfläche, was von den Mexikanern sogar als Qualitätsmerkmal betrachtet wird. Solange sie grün sind, neigen die Jalapeños manchmal zu dunklen Flecken, die bei der roten Ausreifung aber wieder verschwinden (dies also bitte nicht als Krankheit oder Fäule interpretieren!)
-        </td>
-        <td><a href="https://www.chili-shop24.de/chili-zucht/chili-samen/bio-chili-samen/19656/bio-jalapeno-early-chili-samen" target="_blank" rel="noopener">chili-shop24.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Mattapeno</td>
-        <td class="wrap">
-          Capsicum annuum<br>
-          Mattapeno ist einfach der Hammer! Es ist eine außergewöhnliche Variante des Jalapenos mit weiß-grün gestreiften Früchten im unreifen Stadium. Auch die Blätter sind durchgängig bunt. Wie der Jalapeno sollte auch er unreif gegessen werden. Manche Früchte sind fast weiß mit wenigen grünen Streifen, andere wieder mehr grün mit weißen Streifen (oder da beißt sich das Zebra in den Schwanz, ist es nun weiß mit schwarzen Streifen oder schwarz mit weißen Streifen?)<br>
-          Die Sorte ist keine Kreuzung, sondern eine Mutation, die in einem kommerziellen Unternehmen von einem Mitarbeiter in einem rein grünlaubigen Bestand entdeckt wurde. Diese besondere Pflanze nahm er mit nach Hause und stabilisierte sie.<br>
-          Die Früchte sind fest und dickwandig, sie haben eine gute Größe, mit einem Happs sind sie nämlich weg!
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Mattapeno--panaschiert-.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Nadapeno</td>
-        <td class="wrap">
-          Capsicum annuum<br>
-          Ja, wir mögen Chilis ohne Schärfe. Warum? Weil nicht alle gern scharf essen und vor allem, weil Chilis mehr können als einfach bloß scharf zu sein. Sie haben viele Aromen, die man bei Paprika einfach nicht antrifft.<br>
-          Nadapeno ist eine Chilisorte aus den USA. Ein klassischer Jalapeno aber ohne Schärfe. Der Geschmack ist sehr würzig. Bestens auch für Kinder als Snack in der Brotbüchse.<br>
-          Auf den dickwandigen, saftigen Früchte finden sich die typischen Korkrisse. Das ist kein Makel, das ist ein Qualitätszeichen.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Nadapeno.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Naga Dorset</td>
-        <td class="wrap"></td>
-        <td><a href="https://de.wikipedia.org/wiki/Dorset_Naga" target="_blank" rel="noopener">wikipedia.org</a></td>
-      </tr>
-
-      <tr>
-        <td>Pink Habanero</td>
-        <td class="wrap">
-          Capsicum chinense<br>
-          Sieht aus wie ein lachsorangefarbener Habanero - ist auch einer - aber was man nicht sieht: dieser hier ist ohne dessen beißende Schärfe. Das Aroma ist grandios! Es ist ein starker, unverwechselbarer sonnig-fruchtiger-warmer Geschmack mit einer kleinen Spur Schärfe.<br>
-          Die Pflanzen tragen reichlich, eine Freude den zu beernten.<br>
-          Mein Lieblingschili im Jahr 2019. Hab ihn am liebsten 4cm dick aufs Brot gepackt und verspeist.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Pink-Habanero.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Scotch Bonet MOA yellow</td>
-        <td class="wrap">
-          Die Scotch Bonnet MOA Yellow ist eine gelb-orange Variante der Scotch Bonnet. Der Name bedeutet auf deutsch "Schottenmütze" und beschreibt die Form der Schoten, die eher breit als lang und deutlich gefurcht sind. Die Scotch Bonnet gehört zu den schärfsten Chilis der Welt und stellt die Karibik-Variante der Habaneros dar. Außerdem überzeugt sie mit einem außergewöhnlich tropisch-fruchtigen Geschmack und entwickelt ein unglaublich vielfältiges Aroma, das manche an Aprikosen erinnert. Dieses besondere Aroma geht allerdings meist beim Erhitzen oder Trocknen verloren.<br><br>
-          Diese Chili braucht viel Sonne und Wärme und erreicht deshalb in unseren Gefilden nicht ganz die Größe wie in ihrer Heimat Karibik. In der dortigen Küche ist sie essentieller Bestandteil vieler Gerichte, darunter Salsas mit Mangos oder Papayas, zu gegrilltem Schweinfleisch und zu Fisch. Da die Früchte recht dünnwandig sind, eignen sie sich auch gut zum Trocknen.
-        </td>
-        <td><a href="https://www.chili-shop24.de/chili-zucht/chili-samen/grossmengen-bio-chilisamen/19680/bio-scotch-bonnet-moa-yellow-chili-samen-1000-stk." target="_blank" rel="noopener">chili-shop24.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Shabu Shabu</td>
-        <td class="wrap">
-          Die Shabu Shabu Chili stammt aus China und wächst dort wild. Die Chilis werden einmal jährlich in der Region Tengchong an der Grenze zu Myanmar von den einheimischen Bauern geerntet, die sich damit ihr Einkommen aufbessern. Die Chilis sind leichtend rot mit einer unebenen, glänzenden Oberfläche und sehr scharf. Sie ähneln einer Naga Jolokia. Traditionell werden sie mit Stäbchen in einen heißen Suppentopf getaucht und dann schnell gegessen. Sie eignen sich auch für das Verschärfen von Saucen und zur Pulverherstellung.
-        </td>
-        <td><a href="https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-9-10/4556/shabu-shabu-chili-samen" target="_blank" rel="noopener">chili-shop24.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Somborcka</td>
-        <td class="wrap">
-          Dickfleischiger, breitkonischer Paprika, der auch bei uns im Freiland hervorragende Ergebnisse liefert. Die Pflanzen dieser traditionellen Landsorte aus dem Kosovo entwickeln zahlreiche von hellgelb auf schließlich rot reifende Früchte, sodass womöglich Stützen vonnöten sind, um die Zweige vor dem Abbrechen zu bewahren.<br><br>
-          In ihrer Balkan-Heimat werden die gelben Früchte gerne gefüllt und eingelegt; zum Einlegen verwendet. Aber auch in Salaten macht sich diese knackige Paprika sehr lecker, die milde Schärfe gibt Pfiff. Hin und wieder ist das "Innenleben sogar richtig peppig, was zu einem gewissen "Überraschungseffekt führt! Ein Klassiker der Balkan-Küche.
-        </td>
-        <td><a href="https://www.pepperworldhotshop.com/de/produkte/somborcka-chilisamen/?srsltid=AfmBOoqXz4UQMLCCKaZcN06FlI9S2i4BkitndO6Ty3uwb9LymacVomRu" target="_blank" rel="noopener">pepperworldhotshop.com</a></td>
-      </tr>
-
-      <tr>
-        <td>Sweet Bonnet</td>
-        <td class="wrap">
-          Capsicum chinense<br>
-          Superlecker, ganz leicht scharf, äußerst angenehm und unglaubliches Aroma! Ein Chili zum Naschen direkt von der Pflanze. Als ein Verwandter der berühmten Scotch Bonnet aus der Karibik, die sehr scharf sein können, nun in der Variante ohne Waffenscheinpflicht.<br>
-          Früchte sind wie kleine Blümchen geformt, sehr hübsch. Es hängen sehr viele davon an der Pflanze, der Ertrag ist hoch. Sie reifen auch früh.<br>
-          Für alle, die fruchtige Süße mit einem minimalen Kick lieben sehr zu empfehlen. Sie können reichlich davon verwenden.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/neu-chili-sweet-bonnet-schaerfe-1-samen.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Trinidad Scorpion Morgua Chocolate</td>
-        <td class="wrap">
-          Die Trindad Scorpion Moruga Chocolate Chili stammt aus der Karibik und ist eine Variante der Trinidad Scorpion Moruga. Ihre Früchte reifen in einem schönen Schokoladenbraun, sind etwas größer als die der Roten TSM, aber ebenso scharf und am Stachel an der Spitze der Chili zu erkennen. Allerdings können die Fruchtformen bei dieser Art sehr variieren. Die Schoten haben ein sehr aromatisches und fruchtiges Aroma, sind jedoch etwas milder und rauchiger als die anderen Sorten. Sie eignen sich zum Schärfen von Saucen, sowie zum Trocknen und Pulver herstellen.
-        </td>
-        <td><a href="https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-9-10/4532/trinidad-scorpion-moruga-chocolate-chili-samen?c=0" target="_blank" rel="noopener">chili-shop24.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Uba Tuba Gambaei</td>
-        <td class="wrap">
-          Die Uba Tuba Gambuci Chili ist eine Sorte der Capsicum baccatum und stammt aus Brasilien. Typisch für diese Art sind die großen verzweigten Pflanzen (bis 2 Meter), die eine ausladende Krone bilden können. Die Früchte haben eine kuriose Form, die ein wenig an die Bishops Crown oder eine Hängelampe erinnert und können alle sehr unterschiedlich aussehen. Sie sind saftig und dickfleischig, haben ein fruchtiges Aroma und eignen sich zum frischen Verzehr ebenso wie zum Kochen, für Saucen und zum Trocknen.
-        </td>
-        <td><a href="https://www.chili-shop24.de/chili-zucht/chili-samen/schaerfegrad-7-8/1467/uba-tuba-gambuci-chili-samen" target="_blank" rel="noopener">chili-shop24.de</a></td>
-      </tr>
-
-      <tr>
-        <td>Vicentes Sweet Habanero</td>
-        <td class="wrap">
-          Keinerlei Schärfe, aber mit leckerem Habaneroaroma! Ein echter Geschmacksknaller 2014 im Testanbau! Von allen Aromen sind einfach mehr da: mehr Zitrusaromen, mehr Pfirsich, mehr tropische Früchte. Einfach mehr von dem wundervoll bunten, warmen Fruchtaroma welches typisch für Habaneros ist.<br>
-          Wir haben uns das volle Aroma auf der Zunge zergehen lassen.<br>
-          Die Frucht ist herzförmig mit vielen Rillen vom Stiel zur Spitze hin. Die Fruchtfarbe ist hellrot. Die Früchte sind etwa 6cm groß. Wächst prima.<br>
-          Alles in Allem gibt es also nichts zu meckern. Doch, eine Kleinigkeit: schade, dass sie nicht so dickwandig wie eine normale Paprika sind, dann hätte man noch mehr davon.
-        </td>
-        <td><a href="https://deaflora.de/Shop/Chili/Chili-Vicentes-Sweet-Habanero.html" target="_blank" rel="noopener">deaflora.de</a></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="card" style="margin-top:18px;">
-    <h2>Hinweise</h2>
-    <ul>
-      <li><b>Infos</b> → Geschmack, Schärfegrad, Herkunft, Besonderheiten</li>
-      <li><b>Link</b> → externe Infos oder interne Referenzen</li>
-    </ul>
-  </div>
-
+renderCards('all');
+</script>
 </body>
 </html>

@@ -2,29 +2,262 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>🌶 Chili </title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🌶 Chili Grow Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-body {font-family: Arial; background:#111; color:#eee; margin:40px;}
-a {color:#7ee787; font-size:20px;}
-.card {background:#1b1b1b; padding:20px; border-radius:12px; margin-bottom:20px;}
+  :root {
+    --bg: #0d0f0a;
+    --surface: #13160e;
+    --surface2: #1a1f12;
+    --border: #2a3020;
+    --text: #dde5c8;
+    --muted: #7a8a60;
+    --accent: #c8e060;
+    --accent2: #e05a20;
+    --accent3: #f0b840;
+    --red: #d44030;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 40px;
+    position: relative;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200, 224, 96, 0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 100%, rgba(224, 90, 32, 0.06) 0%, transparent 60%);
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(200,224,96,0.3);
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    animation: fadeIn 0.8s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    line-height: 0.95;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    animation: fadeIn 0.8s 0.1s ease both;
+  }
+
+  .hero-title span {
+    color: var(--accent2);
+    font-style: italic;
+  }
+
+  .hero-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 64px;
+    animation: fadeIn 0.8s 0.2s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-bottom: 64px;
+    animation: fadeIn 0.8s 0.3s ease both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+    display: block;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+  }
+
+  .nav-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 700px;
+    width: 100%;
+    animation: fadeIn 0.8s 0.4s ease both;
+  }
+
+  .nav-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,224,96,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .nav-card:hover::before { opacity: 1; }
+
+  .nav-card:hover {
+    border-color: rgba(200,224,96,0.4);
+    transform: translateY(-3px);
+  }
+
+  .nav-card-icon {
+    font-size: 2.2rem;
+  }
+
+  .nav-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .nav-card-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .nav-card-arrow {
+    margin-top: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  /* Season indicator */
+  .season-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #1a1f12 0%, var(--accent2) 30%, var(--accent3) 60%, var(--accent) 80%, #1a1f12 100%);
+    opacity: 0.6;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .nav-cards { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; }
+    .stat-num { font-size: 2rem; }
+  }
 </style>
 </head>
-
 <body>
 
-<h1>🌶 Chili </h1>
+<section class="hero">
+  <div class="hero-badge">Grow Log 2026</div>
+  <h1 class="hero-title">Chili<br><span>Projekt</span></h1>
+  <p class="hero-sub">Saison · Anzucht · Sorten · Notizen</p>
 
-<div class="card">
-<h3>Hier wird die Chili-Anzucht fortlaufend dokumentiert, mittels eines Art Protokols. Die verwendeteten Sorten werden in der Tabelle gelistet</h3>
-  <h2>Navigation</h2>
-  
-<p><a href="anzucht.html">➡ Chili-Anzucht Dokumentation</a></p>
-<p><a href="sorten.html">➡ Chili-Sorten Tabelle</a></p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">80+</span>
+      <span class="stat-label">Samen</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">18</span>
+      <span class="stat-label">Sorten</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Schalen</span>
+    </div>
+  </div>
 
-</div>
+  <div class="nav-cards">
+    <a href="anzucht.html" class="nav-card">
+      <div class="nav-card-icon">🌱</div>
+      <div class="nav-card-title">Anzucht</div>
+      <div class="nav-card-desc">Wöchentliches Tagebuch, Fotos & Beobachtungen</div>
+      <div class="nav-card-arrow">Öffnen →</div>
+    </a>
+    <a href="sorten.html" class="nav-card">
+      <div class="nav-card-icon">🌶</div>
+      <div class="nav-card-title">Sorten</div>
+      <div class="nav-card-desc">Alle 18 Sorten mit Infos, Schärfe & Links</div>
+      <div class="nav-card-arrow">Öffnen →</div>
+    </a>
+  </div>
+</section>
 
-
+<div class="season-bar"></div>
 
 </body>
 </html>
-
